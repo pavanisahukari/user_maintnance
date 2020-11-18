@@ -25,7 +25,7 @@ exports.index = function(req, res) {
 exports.create = function (req, res, next) {
   req.body.password = encryptPassword(req.body.password)
   var newUser = new User(req.body);
- 
+
   newUser.save(function(err, user) {
     console.log(err,user)
     if (err) return validationError(res, err);

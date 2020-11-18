@@ -2,14 +2,13 @@
 
 var express = require('express');
 var controller = require('./user.controller');
-var User = require('./user.model');
-const validator = require('express-joi-validation').createValidator({})
-
+var userschema = require('./userSchema');
+var validators = require('./uservalidator')
 var router = express.Router();
 
 router.get('/',  controller.index);
 router.delete('/:id', controller.destroy);
-router.post('/', validator.query(User), controller.create);
+router.post('/addUser',validators.validateproperties(userschema,'body'),controller.create);
 router.post('/login', controller.Login);
 
 

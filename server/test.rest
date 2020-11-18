@@ -1,11 +1,13 @@
 
 
 
-POST http://localhost:9000/api/users HTTP/1.1
+
+
+POST http://localhost:9000/api/users/addUser HTTP/1.1
 content-type: application/json
 
 {
-   "email": "pavanigmail.com",
-  "first_name" : "pavani",
+  "first_name":"kkk",
+  "email":"pavanxxxi@gmail.com",
   "password":"pavani@1" 
 }
