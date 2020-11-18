@@ -1,13 +1,11 @@
 'use strict';
 
-var User = require('./user.model');
+var User = require('../modals/user.model');
 var userSession = require('../usersession/usersession.model')
 var jwt = require('jsonwebtoken');
-var crypto = require("crypto");
+var bcrypt = require('bcryptjs');
 
-var validationError = function(res, err) {
-  return res.status(422).json(err);
-};
+
 
 /**
  * Get list of users
@@ -22,37 +20,32 @@ exports.index = function(req, res) {
 /**
  * Creates a new user
  */
-exports.create = function (req, res, next) {
+exports.create = function (req, res) {
   req.body.password = encryptPassword(req.body.password)
   var newUser = new User(req.body);
-
   newUser.save(function(err, user) {
-    console.log(err,user)
-    if (err) return validationError(res, err);
+    if (err) return handleError(res, err);
     const token = jwt.sign({ _id: user._id  }, '123-key', { algorithm: "HS256", expiresIn: 60*5 })
     res.json({ token: token });
   });
 };
 
 exports.Login = function (req, res) {
-  console.log(req.body)
   try {
       User.findOne({ email: req.body.email }).exec(function (err, user) {
-          if (err) throw new Error()
+        if (err) { return handleError(res, err);}
           if (!user) {
-              res.status(200).json({ "message": 'Account does not exist !!' });
+              res.status(404).json({ "message": 'Account does not exist !!' });
           } else {
-            console.log(encryptPassword(req.body.password),"????",user.password)
-              if (user.password == encryptPassword(req.body.password)) {
+                if (user && bcrypt.compareSync(req.body.password, user.password)) {
                   let userdat = {
                       _id: user._id,                    
                       email: user.email
                   }
                   if(req.body.role)  userdat.role = user.role
-                      if (err) throw new Error()
                       const token = jwt.sign({ _id: user._id  }, '123-key', { algorithm: "HS256", expiresIn: 60*5 })
                       userSession.create({token:token}, function(err, usersession) {
-                        if(err) { return handleError(res, err); }
+                        if (err) { return handleError(res, err);}
                         return res.status(201).json(usersession);
                       });
               }
@@ -89,9 +82,7 @@ exports.destroy = function(req, res) {
   });
 };
 function encryptPassword(password) {
-  var cipher = crypto.createCipher('aes-256-cbc', 'onlineuser');
-    return cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
-
+    return bcrypt.hashSync(password, 10);
 }
 function handleError(res, err) {
   return res.status(500).send(err);

@@ -10,6 +10,12 @@ const validateproperties = (schema, param) => {
         if (valid) {
             next();
         }
+        else {
+            const { details } = error;
+            const message = details.map(i => i.message).join(',');
+            console.log("Validator Error -- ", message)
+            return res.status(422).json(message);
+        }
 }
 }
 exports.validateproperties = validateproperties;

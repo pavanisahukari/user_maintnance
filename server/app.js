@@ -1,12 +1,7 @@
-/**
- * Main application file
- */
 
 'use strict';
-
 // Set default node environment to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-
 var express = require('express');
 var mongoose = require('mongoose');
 var config = require('./config/development');
@@ -20,18 +15,16 @@ mongoose.connection.once('open', function(){
 }).on('error', function(error){
     console.log('Error is: ', error);
 });
-// Populate DB with sample data
 
 // Setup server
 var app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 var server = require('http').createServer(app);
-require('./config/express')(app);
-require('./routes')(app);
-
+app.use('/api/users', require('./api/routes/userindex'));
+// app.use('/api/usersessions', require('./api/usersession'));
 // Start server
 server.listen(config.port, config.ip, function () {
   console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
 });
 
-// Expose app
-exports = module.exports = app;

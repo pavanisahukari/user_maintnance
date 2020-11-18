@@ -3,11 +3,12 @@
 
 
 
-POST http://localhost:9000/api/users/addUser HTTP/1.1
+POST http://localhost:9000/api/users/login HTTP/1.1
 content-type: application/json
 
 {
-  "first_name":"kkk",
-  "email":"pavanxxxi@gmail.com",
+  "first_name":"pavani",
+  "last_name":"sahu",
+  "email":"pavani@gmail.com",
   "password":"pavani@1" 
 }

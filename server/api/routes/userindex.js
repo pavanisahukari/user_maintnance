@@ -1,9 +1,9 @@
 'use strict';
 
 var express = require('express');
-var controller = require('./user.controller');
-var userschema = require('./userSchema');
-var validators = require('./uservalidator')
+var controller = require('../controllers/user.controller');
+var userschema = require('../schemaValidators/userSchema');
+var validators = require('../validatorMiddlewares/uservalidator')
 var router = express.Router();
 
 router.get('/',  controller.index);
