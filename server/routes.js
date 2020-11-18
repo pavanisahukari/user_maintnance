@@ -10,8 +10,8 @@ module.exports = function(app) {
 
   // Insert routes below
   app.use('/api/users', require('./api/user'));
+  app.use('/api/usersessions', require('./api/usersession'));
 
-  // app.use('/auth', require('./auth'));
   
 
 };
