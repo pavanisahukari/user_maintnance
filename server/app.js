@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 var server = require('http').createServer(app);
 app.use('/api/users', require('./api/routes/userindex'));
-// app.use('/api/usersessions', require('./api/usersession'));
+app.use('/api/usersessions', require('./api/routes/usersessionindex'));
 // Start server
 server.listen(config.port, config.ip, function () {
   console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));

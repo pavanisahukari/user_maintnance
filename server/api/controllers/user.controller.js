@@ -1,18 +1,16 @@
 'use strict';
 
-var User = require('../modals/user.model');
-var userSession = require('../usersession/usersession.model')
+var User = require('../models/user.model');
+var userSession = require('../models/usersession.model')
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
-
-
 
 /**
  * Get list of users
  */
 exports.index = function(req, res) {
   User.find({active:true}).skip(Number(req.query.skip)).limit(Number(req.query.limit)).exec((err, result) => {
-    if(err) return res.status(500).send(err);
+    if(err) return handleError(res, err); ;
     res.status(200).json(result);
   });
 };
@@ -26,13 +24,13 @@ exports.create = function (req, res) {
   newUser.save(function(err, user) {
     if (err) return handleError(res, err);
     const token = jwt.sign({ _id: user._id  }, '123-key', { algorithm: "HS256", expiresIn: 60*5 })
-    res.json({ token: token });
+    res.status(200).json(user);
   });
 };
 
 exports.Login = function (req, res) {
   try {
-      User.findOne({ email: req.body.email }).exec(function (err, user) {
+      User.findOne({ email: req.body.email }).exec(async function (err, user) {
         if (err) { return handleError(res, err);}
           if (!user) {
               res.status(404).json({ "message": 'Account does not exist !!' });
@@ -44,10 +42,9 @@ exports.Login = function (req, res) {
                   }
                   if(req.body.role)  userdat.role = user.role
                       const token = jwt.sign({ _id: user._id  }, '123-key', { algorithm: "HS256", expiresIn: 60*5 })
-                      userSession.create({token:token}, function(err, usersession) {
-                        if (err) { return handleError(res, err);}
-                        return res.status(201).json(usersession);
-                      });
+                      var usersession = await addUserSessions(token,user._id)
+                      console.log("dddd",usersession)
+                      return res.status(201).json(usersession);
               }
               else {
                   res.status(200).json({ "message": 'Invalid password !!' });
@@ -57,6 +54,19 @@ exports.Login = function (req, res) {
   } catch{
       res.status(400).send({ "message": "Something went wrong !!" })
   }
+}
+//add userSessions
+function addUserSessions(token,id){
+  return new Promise((resolve) => {
+  userSession.create({token:fftoken,userid:id}, function(err, usersession) {
+    console.log("calling")
+    if (err) { reject(new Error(err));;}
+    else resolve(usersession);
+  });
+}).catch(e => {
+  console.log(e.message,"////"); // output: Oops
+  return e.message
+  })
 }
 // Updates an existing user in the DB.
 exports.update = function(req, res) {

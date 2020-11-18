@@ -9,9 +9,8 @@ var UserSchema = new Schema({
   last_name:String,
   password:String,
   status:{type:Boolean,default:true},
+  created_at: { type: Date, required: true, default: Date.now },
+
 });
-
-
-
 
 module.exports = mongoose.model('User', UserSchema);
