@@ -18,8 +18,8 @@ exports.index = function(req, res) {
 /**
  * Creates a new user
  */
-exports.create = function (req, res) {
-  req.body.password = encryptPassword(req.body.password)
+exports.create = async function (req, res) {
+  req.body.password = await encryptPassword(req.body.password)
   var newUser = new User(req.body);
   newUser.save(function(err, user) {
     if (err) return handleError(res, err);
@@ -29,7 +29,6 @@ exports.create = function (req, res) {
 };
 
 exports.Login = function (req, res) {
-  try {
       User.findOne({ email: req.body.email }).exec(async function (err, user) {
         if (err) { return handleError(res, err);}
           if (!user) {
@@ -43,7 +42,6 @@ exports.Login = function (req, res) {
                   if(req.body.role)  userdat.role = user.role
                       const token = jwt.sign({ _id: user._id  }, '123-key', { algorithm: "HS256", expiresIn: 60*5 })
                       var usersession = await addUserSessions(token,user._id)
-                      console.log("dddd",usersession)
                       return res.status(201).json(usersession);
               }
               else {
@@ -51,22 +49,20 @@ exports.Login = function (req, res) {
               }
           }
       })
-  } catch{
-      res.status(400).send({ "message": "Something went wrong !!" })
-  }
+   
 }
 //add userSessions
 function addUserSessions(token,id){
   return new Promise((resolve) => {
-  userSession.create({token:fftoken,userid:id}, function(err, usersession) {
-    console.log("calling")
+  userSession.create({token:token,userid:id}, function(err, usersession) {
     if (err) { reject(new Error(err));;}
     else resolve(usersession);
   });
-}).catch(e => {
-  console.log(e.message,"////"); // output: Oops
+})
+.catch(e => {
   return e.message
   })
+  
 }
 // Updates an existing user in the DB.
 exports.update = function(req, res) {
